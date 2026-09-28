@@ -4,11 +4,15 @@ Read your own [Keka](https://www.keka.com/) employee dashboard from any MCP clie
 
 The server speaks stdio, the transport Cursor, VS Code, Claude, Windsurf, Cline, Continue, Zed, Codex, Gemini CLI, and Goose all start the same way: one `npx` command. Node.js 20 or newer is the only install requirement.
 
-[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.png)](cursor://anysphere.cursor-deeplink/mcp/install?name=keka&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImdpdGh1YjpyYWp1cHJhc2FkLWRldi9rZWthLW1jcCJdfQ%3D%3D)
-[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D)
-[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D)
+<a href="https://cursor.com/en/install-mcp?name=keka&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImdpdGh1YjpyYWp1cHJhc2FkLWRldi9rZWthLW1jcCJdfQ%3D%3D"><img src="https://cursor.com/deeplink/mcp-install-dark.svg" alt="Add to Cursor" height="32"></a>
+<a href="https://vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D"><img src="https://img.shields.io/badge/VS_Code-Install-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white" alt="Install in VS Code" height="32"></a>
+<a href="https://insiders.vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D"><img src="https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white" alt="Install in VS Code Insiders" height="32"></a>
 
-Clicking a button opens that editor and asks you to add the Keka server. Your Keka login is not in the button. The first tool call asks you to paste one curl command, or you can put that command in the config as shown below.
+[Add to Cursor](https://cursor.com/en/install-mcp?name=keka&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImdpdGh1YjpyYWp1cHJhc2FkLWRldi9rZWthLW1jcCJdfQ%3D%3D) · [Install in VS Code](https://vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D) · [Install in VS Code Insiders](https://insiders.vscode.dev/redirect/mcp/install?name=keka&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Arajuprasad-dev%2Fkeka-mcp%22%5D%7D)
+
+Those links open Cursor or VS Code and ask you to add the Keka server. Your Keka login is not in the link. The first tool call asks you to paste one curl command, or you can put that command in the config as shown below.
+
+Windsurf, Claude, Cline, Continue, Zed, Codex, and Gemini CLI do not provide an install link for a custom server. Use the config in that app's section. Each code block has a copy button.
 
 ## Connect Keka
 
@@ -37,7 +41,7 @@ Clients that support MCP elicitation show a paste box on the first tool call and
 
 ## Cursor
 
-Use the button above, or add this to `~/.cursor/mcp.json`:
+Use the install link above, or add this to `~/.cursor/mcp.json`:
 
 ```json
 {
