@@ -248,8 +248,9 @@ function looksLikeLoginPage(body, location) {
 
 async function kekaGet(config, pathname, query) {
   const url = new URL(`${API_PREFIX}${pathname}`, config.origin);
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
+  const params = queryFor(pathname, query);
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
       if (value != null && value !== "") url.searchParams.set(key, value);
     }
   }
@@ -340,6 +341,23 @@ function lastWeekRange() {
   const lastMonday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 7);
   const lastSunday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 1);
   return { fromDate: formatLocal(lastMonday), toDate: formatLocal(lastSunday) };
+}
+
+const RANGE_REQUIRED_PATHS = new Set([
+  "/api/mytime/attendance/adjustmentrequests",
+  "/api/mytime/attendance/attendancerequests",
+  "/api/mytime/attendance/partialdayrequests",
+  "/api/mytime/attendance/remoteclockinrequests",
+  "/api/mytime/attendance/workingremotelyrequests",
+  "/api/mytime/attendance/allpendingrequestscount",
+]);
+
+function queryFor(pathname, query) {
+  const next = { ...query };
+  if (RANGE_REQUIRED_PATHS.has(pathname)) return { ...yearToDateRange(next), ...next };
+  if (pathname === "/api/mytime/attendance/lastweekstats" && (!next.fromDate || !next.toDate)) return lastWeekRange();
+  if (pathname === "/api/me/leave/stats" && !next.forDate) next.forDate = todayLocal();
+  return Object.keys(next).length > 0 ? next : undefined;
 }
 
 function addTool(server, name, description, inputSchema, read) {
