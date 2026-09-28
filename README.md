@@ -224,7 +224,7 @@ These tools read the signed-in employee dashboard. A module your company has tur
 | `get_exit_status` | Resignation and exit details. |
 | `get_leave_balance` | Remaining time off. Optional `forDate` (`YYYY-MM-DD`). |
 | `get_leave_requests` | Leave requests on one date. Optional `forDate`. |
-| `get_leave_transactions` | Leave transactions. |
+| `get_leave_transactions` | Leave transactions. Optional `fromDate` and `toDate` (`YYYY-MM-DD`). Defaults to 1 January of this year through today. |
 | `get_leave_stats` | Leave stats on one date. Optional `forDate`. |
 | `get_holidays` | Holiday list. |
 | `get_weekly_off_policy` | Weekly off policy. |
@@ -234,18 +234,18 @@ These tools read the signed-in employee dashboard. A module your company has tur
 | `get_attendance_calendar` | Attendance calendar. Optional `fromDate` and `toDate`. |
 | `get_attendance_summary` | Current attendance summary. |
 | `get_shift_details` | Shift and weekly off. |
-| `get_shift_policy` | Shift policy. |
+| `get_shift_policy` | Shift policy. Optional `forDate` (`YYYY-MM-DD`). Defaults to today. |
 | `get_last_week_attendance` | Last week's stats. |
-| `get_attendance_requests` | Regularization requests. |
-| `get_adjustment_requests` | Adjustment requests. |
-| `get_partial_day_requests` | Partial-day requests. |
-| `get_remote_work_requests` | Remote clock-in and work-from-home requests. |
+| `get_attendance_requests` | Regularization requests. Optional `fromDate` and `toDate`. Defaults to 1 January of this year through today. |
+| `get_adjustment_requests` | Adjustment requests. Optional `fromDate` and `toDate`. Defaults to 1 January of this year through today. |
+| `get_partial_day_requests` | Partial-day requests. Optional `fromDate` and `toDate`. Defaults to 1 January of this year through today. |
+| `get_remote_work_requests` | Remote clock-in and work-from-home requests. Optional `fromDate` and `toDate`. Defaults to 1 January of this year through today. |
 | `get_attendance_policy` | Capture scheme and tracking policy. |
-| `get_pending_attendance_count` | Pending attendance request count. |
+| `get_pending_attendance_count` | Pending attendance request count. Optional `fromDate` and `toDate`. Defaults to 1 January of this year through today. |
 | `get_current_shifts` | Current shift schedules. |
 | `get_expense_policy` | Expense policy. |
 | `get_pending_expenses` | Pending bills. |
-| `get_expense_claims` | Pending and past claims. |
+| `get_expense_claims` | Pending and past claims. Optional `fromDate` and `toDate` for past claims. Defaults to 1 January of this year through today. |
 | `get_advance_requests` | Pending and unclaimed advances. |
 | `get_timesheet_profile` | Timesheet profile. |
 | `get_timesheets` | Timesheet summary. |

@@ -312,6 +312,10 @@ const rangeArgs = z.object({
   fromDate: dateField.optional().describe("First day, YYYY-MM-DD. Defaults to 6 days before toDate."),
   toDate: dateField.optional().describe("Last day, YYYY-MM-DD. Defaults to today on this machine."),
 });
+const yearRangeArgs = z.object({
+  fromDate: dateField.optional().describe("First day, YYYY-MM-DD. Defaults to 1 January of this year."),
+  toDate: dateField.optional().describe("Last day, YYYY-MM-DD. Defaults to today on this machine."),
+});
 const noArgs = z.object({});
 
 function rangeFrom(args) {
@@ -319,6 +323,23 @@ function rangeFrom(args) {
   const start = args.fromDate ?? shiftIsoDate(end, -6);
   if (start > end) throw new Error("fromDate must be on or before toDate.");
   return { fromDate: start, toDate: end };
+}
+
+function yearToDateRange(args = {}) {
+  const end = args.toDate ?? todayLocal();
+  const start = args.fromDate ?? `${end.slice(0, 4)}-01-01`;
+  if (start > end) throw new Error("fromDate must be on or before toDate.");
+  return { fromDate: start, toDate: end };
+}
+
+function lastWeekRange() {
+  const today = new Date();
+  const weekday = today.getDay();
+  const daysSinceMonday = weekday === 0 ? 6 : weekday - 1;
+  const thisMonday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysSinceMonday);
+  const lastMonday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 7);
+  const lastSunday = new Date(thisMonday.getFullYear(), thisMonday.getMonth(), thisMonday.getDate() - 1);
+  return { fromDate: formatLocal(lastMonday), toDate: formatLocal(lastSunday) };
 }
 
 function addTool(server, name, description, inputSchema, read) {
@@ -363,9 +384,21 @@ function createServer() {
   addTool(server, "get_leave_requests", "Leave requests for the signed-in employee on one date.", dateArgs, (config, args) =>
     kekaGet(config, `/api/me/leave/requests/${args.forDate ?? todayLocal()}`),
   );
-  addGet(server, "get_leave_transactions", "Leave transactions for the signed-in employee.", "/api/me/leave/leavetransactions");
-  addTool(server, "get_leave_stats", "Leave stats for the signed-in employee on one date.", dateArgs, (config, args) =>
-    kekaGet(config, `/api/me/leave/stats/${args.forDate ?? todayLocal()}`),
+  addGet(
+    server,
+    "get_leave_transactions",
+    "Leave transactions for the signed-in employee.",
+    "/api/me/leave/leavetransactions",
+    yearRangeArgs,
+    (args) => yearToDateRange(args),
+  );
+  addGet(
+    server,
+    "get_leave_stats",
+    "Leave stats for the signed-in employee on one date.",
+    "/api/me/leave/stats",
+    dateArgs,
+    (args) => ({ forDate: args.forDate ?? todayLocal() }),
   );
   addGet(server, "get_holidays", "Holiday list from the signed-in employee's leave plan.", "/api/me/leave/holidays");
   addGet(server, "get_weekly_off_policy", "Weekly off policy for the signed-in employee.", "/api/me/weeklyoffpolicy");
@@ -397,28 +430,85 @@ function createServer() {
   );
   addGet(server, "get_attendance_summary", "Current attendance summary for the signed-in employee.", "/api/mytime/attendance/summary");
   addGet(server, "get_shift_details", "Shift and weekly-off details for the signed-in employee.", "/api/mytime/attendance/shiftweekoffdetails");
-  addGet(server, "get_shift_policy", "Shift policy for the signed-in employee.", "/api/mytime/attendance/shiftpolicy");
-  addGet(server, "get_last_week_attendance", "Last week's attendance stats for the signed-in employee.", "/api/mytime/attendance/lastweekstats");
-  addGet(server, "get_attendance_requests", "Attendance regularization requests for the signed-in employee.", "/api/mytime/attendance/attendancerequests");
-  addGet(server, "get_adjustment_requests", "Attendance adjustment requests for the signed-in employee.", "/api/mytime/attendance/adjustmentrequests");
-  addGet(server, "get_partial_day_requests", "Partial-day requests for the signed-in employee.", "/api/mytime/attendance/partialdayrequests");
-  addTool(server, "get_remote_work_requests", "Remote clock-in and working-remotely requests for the signed-in employee.", noArgs, async (config) => ({
-    remoteClockIn: await kekaGet(config, "/api/mytime/attendance/remoteclockinrequests"),
-    workingRemotely: await kekaGet(config, "/api/mytime/attendance/workingremotelyrequests"),
-  }));
+  addGet(
+    server,
+    "get_shift_policy",
+    "Shift policy for the signed-in employee.",
+    "/api/mytime/attendance/shiftpolicy",
+    dateArgs,
+    (args) => ({ date: args.forDate ?? todayLocal() }),
+  );
+  addGet(
+    server,
+    "get_last_week_attendance",
+    "Last week's attendance stats for the signed-in employee.",
+    "/api/mytime/attendance/lastweekstats",
+    noArgs,
+    () => lastWeekRange(),
+  );
+  addGet(
+    server,
+    "get_attendance_requests",
+    "Attendance regularization requests for the signed-in employee.",
+    "/api/mytime/attendance/attendancerequests",
+    yearRangeArgs,
+    (args) => yearToDateRange(args),
+  );
+  addGet(
+    server,
+    "get_adjustment_requests",
+    "Attendance adjustment requests for the signed-in employee.",
+    "/api/mytime/attendance/adjustmentrequests",
+    yearRangeArgs,
+    (args) => yearToDateRange(args),
+  );
+  addGet(
+    server,
+    "get_partial_day_requests",
+    "Partial-day requests for the signed-in employee.",
+    "/api/mytime/attendance/partialdayrequests",
+    yearRangeArgs,
+    (args) => yearToDateRange(args),
+  );
+  addTool(
+    server,
+    "get_remote_work_requests",
+    "Remote clock-in and working-remotely requests for the signed-in employee.",
+    yearRangeArgs,
+    async (config, args) => {
+      const range = yearToDateRange(args);
+      return {
+        remoteClockIn: await kekaGet(config, "/api/mytime/attendance/remoteclockinrequests", range),
+        workingRemotely: await kekaGet(config, "/api/mytime/attendance/workingremotelyrequests", range),
+      };
+    },
+  );
   addTool(server, "get_attendance_policy", "Attendance capture scheme and tracking policy for the signed-in employee.", noArgs, async (config) => ({
     captureScheme: await kekaGet(config, "/api/mytime/attendance/attendancecapturescheme"),
     trackingPolicy: await kekaGet(config, "/api/mytime/attendance/trackingpolicy"),
   }));
-  addGet(server, "get_pending_attendance_count", "Count of the signed-in employee's pending attendance requests.", "/api/mytime/attendance/allpendingrequestscount");
+  addGet(
+    server,
+    "get_pending_attendance_count",
+    "Count of the signed-in employee's pending attendance requests.",
+    "/api/mytime/attendance/allpendingrequestscount",
+    yearRangeArgs,
+    (args) => yearToDateRange(args),
+  );
   addGet(server, "get_current_shifts", "Current shift schedules for the signed-in employee.", "/api/mytime/attendance/current/shift-schedules-and-job-codes");
 
   addGet(server, "get_expense_policy", "Expense policy for the signed-in employee.", "/api/me/expenses/policy");
   addGet(server, "get_pending_expenses", "Pending expense bills for the signed-in employee.", "/api/me/expenses/bills/pending");
-  addTool(server, "get_expense_claims", "Pending and past expense claims for the signed-in employee.", noArgs, async (config) => ({
-    pending: await kekaGet(config, "/api/me/expenses/claims/pending"),
-    past: await kekaGet(config, "/api/me/expenses/claims/past"),
-  }));
+  addTool(server, "get_expense_claims", "Pending and past expense claims for the signed-in employee.", yearRangeArgs, async (config, args) => {
+    const range = yearToDateRange(args);
+    return {
+      pending: await kekaGet(config, "/api/me/expenses/claims/pending"),
+      past: await kekaGet(config, "/api/me/expenses/claims/past", {
+        paidFromDate: range.fromDate,
+        paidToDate: range.toDate,
+      }),
+    };
+  });
   addTool(server, "get_advance_requests", "Pending and unclaimed advance requests for the signed-in employee.", noArgs, async (config) => ({
     pending: await kekaGet(config, "/api/me/expenses/advancerequests/pending"),
     unclaimed: await kekaGet(config, "/api/me/expenses/advancerequests/unclaimed"),
